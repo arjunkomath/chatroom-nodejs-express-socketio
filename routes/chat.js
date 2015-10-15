@@ -1,9 +1,14 @@
 module.exports = function(router,io) {
 
+    var uuid = require('uuid');
+    var moment = require('moment');
+
     io.on('connection', function(socket){
         console.log('a user connected');
+
         socket.on('disconnect', function(){
             console.log('user disconnected');
+            io.sockets.in(socket.room).emit('chat', socket.username + ' left!', "Server");
         });
 
         // socket.on('chat', function(msg){
@@ -13,12 +18,13 @@ module.exports = function(router,io) {
 
         socket.on('chat', function (data) {
             console.log('message: ' + data);
-            io.sockets.in(socket.room).emit('chat', data, socket.username);
+            io.sockets.in(socket.room).emit('chat', data, socket.username, socket.image, moment().format('llll'));
         });
 
         socket.on('joinroom', function(room_id, username){
             socket.room = room_id;
             socket.username = username;
+            socket.image = 'http://lorempixel.com/64/64/?id='+uuid.v4();
             socket.join(room_id);
             console.log(username + ' added to ' + room_id);
             io.sockets.in(socket.room).emit('chat', username + ' joined!', "Server");
