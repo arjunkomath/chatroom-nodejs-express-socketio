@@ -16,10 +16,15 @@ body {
 .msg-wrap
 {
     padding:10px;
-    min-height: 80vh;
+    min-height: 90vh;
     max-height: 400px;
     overflow: auto;
 
+}
+
+.users {
+    min-height: 92vh;
+    overflow: auto;
 }
 
 .time

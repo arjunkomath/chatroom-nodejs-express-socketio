@@ -12,16 +12,11 @@ module.exports = function(router,io) {
 
             var users_list = new Array;
             io.sockets.in(socket.room).sockets.forEach ( function (s){
-                if(s.username)
+                if(s.username && s.room == socket.room)
                     users_list.push(s.username);
             });
             io.sockets.in(socket.room).emit('list_users', users_list);
         });
-
-        // socket.on('chat', function(msg){
-        //     console.log('message: ' + msg);
-        //     io.emit('chat', msg);
-        // });
 
         socket.on('chat', function (data) {
             console.log('message: ' + data);
@@ -38,10 +33,10 @@ module.exports = function(router,io) {
 
             var users_list = new Array;
             io.sockets.in(socket.room).sockets.forEach ( function (s){
-                if(s.username)
+                if(s.username && s.room == room_id)
                     users_list.push(s.username);
             });
-            io.sockets.in(socket.room).emit('list_users', users_list);
+            io.sockets.in(room_id).emit('list_users', users_list);
 
         });
 

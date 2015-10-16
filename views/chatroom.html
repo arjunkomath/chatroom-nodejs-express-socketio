@@ -3,72 +3,105 @@
 {% block content %}
 <script src="/vendor/socket.io-client/socket.io.js"></script>
 <script>
-    var socket = io();
-    socket.on('connect', function(){
+var socket = io();
+socket.on('connect', function(){
 
-        swal({
-            title: "Welcome!",
-            text: "Enter your Name, leave it blank for guest mode.",
-            type: "input",   showCancelButton: true,
-            closeOnConfirm: false,   animation: "slide-from-top",
-            inputPlaceholder: "Write something"
-        }, function(inputValue){
-            if (inputValue === false) {
-                inputValue = 'Guest';
-            }
-            if (inputValue === "") {
-                inputValue = 'Guest';
+    swal({
+        title: "Welcome!",
+        text: "Enter your Name, leave it blank for guest mode.",
+        type: "input",   showCancelButton: true,
+        closeOnConfirm: false,   animation: "slide-from-top",
+        inputPlaceholder: "Write something"
+    }, function(inputValue){
+        if (inputValue === false) {
+            inputValue = 'Guest';
+        }
+        if (inputValue === "") {
+            inputValue = 'Guest';
         }
         socket.emit('joinroom', '{{room_id}}', inputValue);
         swal.close();
     });
 
-    });
-    $(document).on('click', '#send', function(){
-        socket.emit('chat', $('#message').val());
-        $('#message').val('');
-    });
-    socket.on('chat', function(msg, user, image, ts){
-        if(user == 'Server') {
-            $('.msg-wrap').append('<div class="alert alert-success msg-date"> <strong>'+msg+'</strong> </div>');
-        } else {
-            $('.msg-wrap').append('<div class="media msg"> <a class="pull-left" href="#"> <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 32px; height: 32px;" src="'+image+'"> </a> <div class="media-body"> <small class="pull-right time"><i class="fa fa-clock-o"></i> '+ts+'</small> <h5 class="media-heading">'+user+'</h5> <small class="col-lg-10">'+msg+'</small> </div> </div>');
-        }
-    });
+});
+$(document).on('click', '#send', function(){
+    socket.emit('chat', $('#message').val());
+    $('#message').val('');
+    setTimeout(function() {
+        var elem = document.getElementById('chat_window');
+        elem.scrollTop = elem.scrollHeight + 100;
+    }, 200);
+});
 
-    socket.on('list_users', function(users){
-        $el = $('#list_users');
-        $el.empty();
-        users.forEach ( function (u) {
-            $el.append('<li>'+u+'</li>');
-        });
+socket.on('chat', function(msg, user, image, ts){
+    if(user == 'Server') {
+        $('.msg-wrap').append('<div class="alert alert-success msg-date"> <strong>'+msg+'</strong> </div>');
+    } else {
+        $('.msg-wrap').append('<div class="media msg"> <a class="pull-left" href="#"> <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 32px; height: 32px;" src="'+image+'"> </a> <div class="media-body"> <small class="pull-right time"><i class="fa fa-clock-o"></i> '+ts+'</small> <h5 class="media-heading">'+user+'</h5> <small class="col-lg-10">'+msg+'</small> </div> </div>');
+    }
+    setTimeout(function() {
+        var elem = document.getElementById('chat_window');
+        elem.scrollTop = elem.scrollHeight + 100;
+    }, 200);
+});
+
+socket.on('list_users', function(users){
+    $el = $('#list_users');
+    $el.empty();
+    users.forEach ( function (u) {
+        $el.append('<li>'+u+'</li>');
     });
+});
 </script>
 
 <div class="container">
     <div class="container">
         <div class="row">
             <div class="message-wrap col-lg-8">
-                <div class="msg-wrap">
+                <div id="chat_window" class="msg-wrap">
                     <div class="alert alert-info msg-date">
                         <strong>Room ID : {{ room_id }}</strong>
                     </div>
                 </div>
-                <div class="send-wrap ">
-                    <textarea class="form-control send-message" id="message" rows="3" placeholder="Write a reply..."></textarea>
-                </div>
-                <div class="btn-panel">
-                    <a href="#" class=" col-lg-3 btn" id="send" role="button"><i class="fa fa-plus"></i> Send message</a>
+                <div class="send-wrap">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <input class="form-control send-message" id="message" placeholder="Write a reply...">
+                        </div>
+                        <div class="col-md-3">
+                            <a href="#" class=" col-lg-3 btn" id="send" role="button"><i class="fa fa-plus"></i> Send message</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="message-wrap col-lg-4">
-                <h4>List of Users</h4>
-                <ul id="list_users">
-                    <li>asda</li>
-                </ul>
+            <div class="col-lg-4">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">List of Users</h3>
+                    </div>
+                    <div class="panel-body users">
+                        <ul id="list_users"></ul>
+                    </div>
+                </div>
+
             </div>
+
         </div>
     </div>
 </div>
+<script>
+$('#message').keypress(function(e){
+    var code = (e.keyCode ? e.keyCode : e.which);
+    if (code == 13) {
+        socket.emit('chat', $('#message').val());
+        $('#message').val('');
+        setTimeout(function() {
+            var elem = document.getElementById('chat_window');
+            elem.scrollTop = elem.scrollHeight + 100;
+        }, 200);
+    }
+});
+</script>
 {% endblock %}
