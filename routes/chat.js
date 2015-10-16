@@ -9,6 +9,13 @@ module.exports = function(router,io) {
         socket.on('disconnect', function(){
             console.log('user disconnected');
             io.sockets.in(socket.room).emit('chat', socket.username + ' left!', "Server");
+
+            var users_list = new Array;
+            io.sockets.in(socket.room).sockets.forEach ( function (s){
+                if(s.username)
+                    users_list.push(s.username);
+            });
+            io.sockets.in(socket.room).emit('list_users', users_list);
         });
 
         // socket.on('chat', function(msg){
@@ -28,7 +35,14 @@ module.exports = function(router,io) {
             socket.join(room_id);
             console.log(username + ' added to ' + room_id);
             io.sockets.in(socket.room).emit('chat', username + ' joined!', "Server");
-            // io.emit('chat', msg);
+
+            var users_list = new Array;
+            io.sockets.in(socket.room).sockets.forEach ( function (s){
+                if(s.username)
+                    users_list.push(s.username);
+            });
+            io.sockets.in(socket.room).emit('list_users', users_list);
+
         });
 
     });

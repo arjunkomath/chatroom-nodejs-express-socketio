@@ -35,6 +35,14 @@
             $('.msg-wrap').append('<div class="media msg"> <a class="pull-left" href="#"> <img class="media-object" data-src="holder.js/64x64" alt="64x64" style="width: 32px; height: 32px;" src="'+image+'"> </a> <div class="media-body"> <small class="pull-right time"><i class="fa fa-clock-o"></i> '+ts+'</small> <h5 class="media-heading">'+user+'</h5> <small class="col-lg-10">'+msg+'</small> </div> </div>');
         }
     });
+
+    socket.on('list_users', function(users){
+        $el = $('#list_users');
+        $el.empty();
+        users.forEach ( function (u) {
+            $el.append('<li>'+u+'</li>');
+        });
+    });
 </script>
 
 <div class="container">
@@ -52,6 +60,13 @@
                 <div class="btn-panel">
                     <a href="#" class=" col-lg-3 btn" id="send" role="button"><i class="fa fa-plus"></i> Send message</a>
                 </div>
+            </div>
+
+            <div class="message-wrap col-lg-4">
+                <h4>List of Users</h4>
+                <ul id="list_users">
+                    <li>asda</li>
+                </ul>
             </div>
         </div>
     </div>
